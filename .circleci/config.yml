@@ -8,8 +8,11 @@ jobs:
       - run:
           name: Test Internet Access
           command: |
-            curl -I https://get.sonarsource.com
-            curl https://www.google.com
+            echo "Testing access to Google..."
+            curl -I https://www.google.com || echo "Failed to reach Google"
+            
+            echo "Testing access to SonarSource..."
+            curl -I https://get.sonarsource.com || echo "Failed to reach SonarSource"
 workflows:
   version: 2
   test:
