@@ -1,39 +1,31 @@
 version: 2.1
 
-# Define jobs and workflows in CircleCI
 jobs:
-  # Job to run the SonarCloud scan
-  sonarcloud-scan:
+  build:
     docker:
-      - image: circleci/python:3.7  # Adjust this image to match your project's language (e.g., use a Java, Node, or Python image)
+      - image: circleci/python:3.8  # Choose the appropriate Docker image for your project
     steps:
-      - checkout  # Checkout the code
+      - checkout  # Checkout the code from your GitHub repository
       - run:
           name: Install dependencies
           command: |
-            # Install any dependencies required for your project (e.g., Java, Node.js)
-            sudo apt-get update
-            sudo apt-get install -y openjdk-11-jdk  # Example for Java (adjust for your stack)
-      - run:
-          name: Install SonarScanner
-          command: |
-            # Download and install SonarScanner
-            wget https://github.com/SonarSource/sonar-scanner-cli/releases/download/4.7.0.2747/sonar-scanner-4.7.0.2747-linux.zip
-            unzip sonar-scanner-4.7.0.2747-linux.zip
-            export SONAR_SCANNER_HOME=$(pwd)/sonar-scanner-4.7.0.2747-linux
-            export PATH=$PATH:$SONAR_SCANNER_HOME/bin
+            # Install SonarScanner
+            curl -sS https://get.sonarsource.com/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip -o sonar-scanner.zip
+            unzip sonar-scanner.zip -d /opt/sonar-scanner
+            echo 'export PATH=$PATH:/opt/sonar-scanner/sonar-scanner-4.7.0.2747-linux/bin' >> ~/.bashrc
+            source ~/.bashrc
       - run:
           name: Run SonarCloud analysis
           command: |
-            # Run the SonarCloud analysis on your code
             sonar-scanner \
               -Dsonar.projectKey=your_project_key \
-              -Dsonar.organization=your_sonarcloud_organization \
+              -Dsonar.organization=your_organization \
               -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.login=$SONAR_TOKEN  # Use CircleCI environment variable for security
+              -Dsonar.login=$SONAR_TOKEN  # SONAR_TOKEN should be an environment variable in CircleCI
 
 workflows:
   version: 2
   build:
     jobs:
-      - sonarcloud-scan
+      - build
+
