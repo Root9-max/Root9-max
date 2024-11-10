@@ -20,8 +20,8 @@ jobs:
           name: Run SonarScanner
           command: |
             sonar-scanner \
-              -Dsonar.projectKey=your_project_key \
-              -Dsonar.organization=your_organization_name \
+              -Dsonar.projectKey=Root9-max_Root9-max \
+              -Dsonar.organization=Sidiq \
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.login=$SONAR_TOKEN
 
