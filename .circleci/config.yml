@@ -1,35 +1,17 @@
 version: 2.1
 
 jobs:
-  build:
+  check-internet-access:
     docker:
       - image: circleci/node:latest
     steps:
       - run:
-          name: Test Outbound Internet Access
+          name: Test Internet Access
           command: |
-            curl -I https://www.google.com || ping -c 4 8.8.8.8
-
-      - run:
-          name: Install dependencies
-          command: |
-            # Install SonarScanner
-            curl -sS https://get.sonarsource.com/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip -o sonar-scanner.zip
-            unzip sonar-scanner.zip -d /opt/sonar-scanner
-            echo 'export PATH=$PATH:/opt/sonar-scanner/sonar-scanner-4.7.0.2747-linux/bin' >> ~/.bashrc
-            source ~/.bashrc
-
-      - run:
-          name: Run SonarCloud analysis
-          command: |
-            sonar-scanner \
-              -Dsonar.projectKey=your_project_key \
-              -Dsonar.organization=your_organization \
-              -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.login=$SONAR_TOKEN  # SONAR_TOKEN should be an environment variable in CircleCI
-
+            curl -I https://get.sonarsource.com
+            curl https://www.google.com
 workflows:
   version: 2
-  build:
+  test:
     jobs:
-      - build
+      - check-internet-access
