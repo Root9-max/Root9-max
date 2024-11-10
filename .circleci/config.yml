@@ -1,20 +1,32 @@
 version: 2.1
 
 jobs:
-  check-internet-access:
+  sonarcloud-analysis:
     docker:
-      - image: circleci/node:latest
+      - image: circleci/node:latest # Change to a suitable image for your project, like python or java if needed
     steps:
+      - checkout
+
+      # Install SonarScanner
       - run:
-          name: Test Internet Access
+          name: Install SonarScanner
           command: |
-            echo "Testing access to Google..."
-            curl -I https://www.google.com || echo "Failed to reach Google"
-            
-            echo "Testing access to SonarSource..."
-            curl -I https://get.sonarsource.com || echo "Failed to reach SonarSource"
+            curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+            unzip sonar-scanner.zip
+            export PATH="$PATH:$(pwd)/sonar-scanner-4.6.2.2472-linux/bin"
+      
+      # Run SonarScanner Analysis
+      - run:
+          name: Run SonarScanner
+          command: |
+            sonar-scanner \
+              -Dsonar.projectKey=your_project_key \
+              -Dsonar.organization=your_organization_name \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.login=$SONAR_TOKEN
+
 workflows:
   version: 2
-  test:
+  sonarcloud-workflow:
     jobs:
-      - check-internet-access
+      - sonarcloud-analysis
