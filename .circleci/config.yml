@@ -6,6 +6,14 @@ jobs:
       - image: circleci/python:3.8  # Choose the appropriate Docker image for your project
     steps:
       - checkout  # Checkout the code from your GitHub repository
+      
+      # Install curl and unzip
+      - run:
+          name: Install curl and unzip
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y curl unzip
+
       - run:
           name: Install dependencies
           command: |
@@ -14,6 +22,7 @@ jobs:
             unzip sonar-scanner.zip -d /opt/sonar-scanner
             echo 'export PATH=$PATH:/opt/sonar-scanner/sonar-scanner-4.7.0.2747-linux/bin' >> ~/.bashrc
             source ~/.bashrc
+
       - run:
           name: Run SonarCloud analysis
           command: |
@@ -28,4 +37,3 @@ workflows:
   build:
     jobs:
       - build
-
