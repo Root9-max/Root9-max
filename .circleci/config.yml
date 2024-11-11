@@ -3,7 +3,7 @@ version: 2.1
 executors:
   docker-executor:
     docker:
-      - image: circleci/node:14  # Change this image based on your tech stack (use your project's relevant image)
+      - image: circleci/python:3.8  # Change this image based on your tech stack (use your project's relevant image)
         auth:
           username: $DOCKER_USERNAME
           password: $DOCKER_PASSWORD
@@ -18,6 +18,12 @@ jobs:
       - image: circleci/python:3.8  # Ensure this image has necessary tools (could use SonarQube scanner image)
     steps:
       - checkout  # Checks out your code to the job environment
+      - run:
+          name: Install Java 17
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y openjdk-17-jdk
+            java -version  # Verify Java 17 is installed correctly
       - run:
           name: Install SonarQube Scanner
           command: |
