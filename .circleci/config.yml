@@ -16,15 +16,15 @@ jobs:
     steps:
       - checkout  # Checks out your code to the job environment
       - run:
-          name: Install Java 23.0.1
+          name: Install Java 17.2
           command: |
             sudo apt-get update
-            sudo apt-get install -y openjdk- 23.0.1-jdk
-            # Set JAVA_HOME to Java 23.0.1
-            echo "export JAVA_HOME=/usr/lib/jvm/java- 23.0.1-openjdk-amd64" >> ~/.bashrc
+            sudo apt-get install -y openjdk- 17.2-jdk
+            # Set JAVA_HOME to Java 17.2
+            echo "export JAVA_HOME=/usr/lib/jvm/java- 17.2-openjdk-amd64" >> ~/.bashrc
             echo "export PATH=$JAVA_HOME/bin:$PATH" >> ~/.bashrc
             source ~/.bashrc  # Apply the changes to the shell environment
-            java -version  # Verify that Java 23.0.1 is installed correctly
+            java -version  # Verify that Java 17.2 is installed correctly
       - run:
           name: Install SonarQube Scanner
           command: |
