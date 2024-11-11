@@ -1,14 +1,41 @@
 version: 2.1
 
-jobs:
-  build:
+executors:
+  docker-executor:
     docker:
-      - image: circleci/python:3.8
-        environment:
-          - DNS_SERVER: "8.8.8.8"  # Google's DNS server
+      - image: circleci/node:14  # Change this image based on your tech stack (use your project's relevant image)
+        auth:
+          username: $DOCKER_USERNAME
+          password: $DOCKER_PASSWORD
+    environment:
+      SONAR_TOKEN: $SONAR_TOKEN  # Add your SonarQube token as an environment variable
+      SONAR_PROJECT_KEY: $Root9-max_Root9-max  # Your SonarQube project key
+      SONAR_PROJECT_NAME: $sidiq  # Name of your project
+
+jobs:
+  sonar-scanner:
+    docker:
+      - image: circleci/python:3.8  # Ensure this image has necessary tools (could use SonarQube scanner image)
     steps:
+      - checkout  # Checks out your code to the job environment
       - run:
-          name: Test DNS Resolution
+          name: Install SonarQube Scanner
           command: |
-            echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
-            curl -sS https://get.sonarsource.com/sonarscanner | sudo bash
+            curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+            unzip sonar-scanner-cli.zip
+            export PATH=$PATH:$PWD/sonar-scanner-4.6.2.2472-linux/bin
+      - run:
+          name: Run SonarQube Analysis
+          command: |
+            sonar-scanner \
+              -Dsonar.projectKey=$Root9-max_Root9-max \
+              -Dsonar.projectName=$sidiq \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.login=$SONAR_TOKEN
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - sonar-scanner
