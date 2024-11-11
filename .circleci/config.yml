@@ -16,15 +16,15 @@ jobs:
     steps:
       - checkout  # Checks out your code to the job environment
       - run:
-          name: Install Java 17
+          name: Install Java 11
           command: |
             sudo apt-get update
-            sudo apt-get install -y openjdk-17-jdk
-            # Set JAVA_HOME to Java 17
-            echo "export JAVA_HOME=/path/to/java17" >> ~/.bashrc
+            sudo apt-get install -y openjdk-11-jdk
+            # Set JAVA_HOME to Java 11
+            echo "export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> ~/.bashrc
             echo "export PATH=$JAVA_HOME/bin:$PATH" >> ~/.bashrc
             source ~/.bashrc  # Apply the changes to the shell environment
-            java -version  # Verify that Java 17 is installed correctly
+            java -version  # Verify that Java 11 is installed correctly
       - run:
           name: Install SonarQube Scanner
           command: |
