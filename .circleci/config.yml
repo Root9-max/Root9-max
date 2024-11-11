@@ -1,45 +1,48 @@
 version: 2.1
 
 executors:
-  windows-executor:
-    machine:
-      image: windows-server-2019  # Ensures a Windows environment on CircleCI
+  docker-executor:
+    docker:
+      - image: circleci/python:3.8  # Use your desired base Docker image
     environment:
-      SONAR_TOKEN: $SONAR_TOKEN
-      SONAR_PROJECT_KEY: $Root9-max_Root9-max
-      SONAR_PROJECT_NAME: $sidiq
+      SONAR_TOKEN: $SONAR_TOKEN  # Add your SonarQube token as an environment variable
+      SONAR_PROJECT_KEY: $Root9-max_Root9-max  # Your SonarQube project key
+      SONAR_PROJECT_NAME: $sidiq  # Name of your project
 
 jobs:
   sonar-scanner:
-    executor: windows-executor
+    docker:
+      - image: circleci/python:3.8  # Ensure this image has necessary tools (adjust for your stack)
     steps:
-      - checkout
+      - checkout  # Checks out your code to the job environment
       - run:
-          name: Install Java 17
-          shell: powershell.exe  # Use PowerShell for this command
+          name: Install Java 17 and set it as default
           command: |
-            Invoke-WebRequest -Uri "https://download.oracle.com/java/17/latest/jdk-17_windows-x64_bin.zip" -OutFile "C:\jdk17.zip"
-            Expand-Archive -Path "C:\jdk17.zip" -DestinationPath "C:\java"
-            [System.Environment]::SetEnvironmentVariable('JAVA_HOME', 'C:\java\jdk-17', 'Machine')
-            [System.Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\java\jdk-17\bin', 'Machine')
+            sudo apt-get update
+            sudo apt-get install -y openjdk-17-jdk
+            # Set JAVA_HOME and update alternatives to prioritize Java 17
+            sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-17-openjdk-amd64/bin/java 1
+            sudo update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac 1
+            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+            # Verify Java 17 is set as the default
             java -version
       - run:
           name: Install SonarQube Scanner
-          shell: powershell.exe
           command: |
-            Invoke-WebRequest -Uri "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-windows.zip" -OutFile "C:\sonar-scanner-cli.zip"
-            Expand-Archive -Path "C:\sonar-scanner-cli.zip" -DestinationPath "C:\sonar-scanner"
-            [System.Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\sonar-scanner\sonar-scanner-4.6.2.2472-windows\bin', 'Machine')
+            curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+            unzip sonar-scanner-cli.zip
+            sudo mv sonar-scanner-4.6.2.2472-linux /opt/sonar-scanner
+            sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
       - run:
           name: Run SonarQube Analysis
-          shell: powershell.exe
           command: |
-            sonar-scanner `
-              -Dsonar.projectKey=$Env:Root9-max_Root9-max `
-              -Dsonar.projectName=$Env:sidiq `
-              -Dsonar.sources=. `
-              -Dsonar.host.url=https://sonarcloud.io `
-              -Dsonar.login=$Env:SONAR_TOKEN
+            sonar-scanner \
+              -Dsonar.projectKey=$Root9-max_Root9-max \
+              -Dsonar.projectName=$sidiq \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.login=$SONAR_TOKEN
 
 workflows:
   version: 2
